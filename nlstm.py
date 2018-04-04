@@ -66,7 +66,7 @@ class NestedLSTMCell(nn.Module):
         self.bias = bias
 
         self.Gates = nn.Linear(self.input_size + self.hidden_dim, 4 * self.hidden_dim,bias=self.bias)
-        self.cell_core = LSTMCell(self.hidden_dim,self.hidden_dim,self.bias) 
+        self.cell_core = LSTMCell(2*self.hidden_dim,self.hidden_dim,self.bias) 
 
 
     def forward(self, input_tensor, total_state):
@@ -90,7 +90,7 @@ class NestedLSTMCell(nn.Module):
         cell_gate = F.tanh(cell_gate)
 
         # compute current cell and hidden state
-        cell = (remember_gate * c_cur) + (in_gate * cell_gate)
+        cell = torch.cat(((remember_gate * c_cur), (in_gate * cell_gate)),1)
 #         print(cell.size())
 
         
@@ -109,7 +109,7 @@ class NestedLSTMCell(nn.Module):
 class NestedLSTM(nn.Module):
 
     def __init__(self, input_size,hidden_dim, num_layers = 1,
-                 batch_first=False, bias=True, return_all_layers=False):
+                 batch_first=True, bias=True, return_all_layers=False):
         
         
         super(NestedLSTM, self).__init__()
@@ -143,7 +143,7 @@ class NestedLSTM(nn.Module):
         Parameters
         ----------
         input_tensor: todo 
-            5-D Tensor either of shape (t, b, c) or (b, t, c)
+            3-D Tensor either of shape (t, b, c) or (b, t, c)
         hidden_state: todo
             None. todo implement stateful
             
